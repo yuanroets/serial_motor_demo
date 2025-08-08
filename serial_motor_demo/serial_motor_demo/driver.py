@@ -18,12 +18,12 @@ class MotorDriver(Node):
 
         # Setup parameters
 
-        self.declare_parameter('encoder_cpr', value=1860)  # Updated to your CPR
+        self.declare_parameter('encoder_cpr', value=0)
         if (self.get_parameter('encoder_cpr').value == 0):
             print("WARNING! ENCODER CPR SET TO 0!!")
 
 
-        self.declare_parameter('loop_rate', value=30.0)  # Set default to 30Hz
+        self.declare_parameter('loop_rate', value=0)
         if (self.get_parameter('loop_rate').value == 0):
             print("WARNING! LOOP RATE SET TO 0!!")
 
@@ -73,7 +73,8 @@ class MotorDriver(Node):
         self.conn = serial.Serial(self.serial_port, self.baud_rate, timeout=1.0)
         print(f"Connected to {self.conn}")
         
-        # NOTE: No timer needed - we'll call check_encoders in main loop like original
+
+        
 
 
     # Raw serial commands
@@ -172,22 +173,18 @@ def main(args=None):
 
     motor_driver = MotorDriver()
 
-    # Create a timer to replace the deprecated create_rate
-    loop_rate = motor_driver.get_parameter('loop_rate').value
-    if loop_rate <= 0:
-        loop_rate = 2.0  # Default fallback
-    
-    timer_period = 1.0 / loop_rate
-    
-    def timer_callback():
+    # ROS Jazzy compatible approach - create_rate is deprecated
+    # Use a timer-based approach instead of the polling loop
+    def check_encoders_callback():
         motor_driver.check_encoders()
     
-    timer = motor_driver.create_timer(timer_period, timer_callback)
+    # Use 2Hz rate as in original (matches original create_rate(2))
+    timer = motor_driver.create_timer(0.5, check_encoders_callback)
     
     try:
         rclpy.spin(motor_driver)
     except KeyboardInterrupt:
-        print("Shutting down...")
+        print("Shutting down motor driver...")
     finally:
         motor_driver.close_conn()
         motor_driver.destroy_node()

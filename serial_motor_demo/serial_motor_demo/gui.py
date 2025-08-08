@@ -53,7 +53,7 @@ class MotorGui(Node):
         self.slider_max_label.pack(side=LEFT)
         self.slider_max_val_box = Entry(slider_max_frame, state="disabled")
         self.slider_max_val_box.pack(side=LEFT)
-        self.slider_max_val_box.insert(0, "5.0")  # Set default value
+        self.slider_max_val_box.insert(0, "5.0")  # Set default value to avoid errors
         self.max_val_update_btn = Button(slider_max_frame, text='Update', command=self.update_scale_limits, state="disabled")
         self.max_val_update_btn.pack(side=LEFT)
 
@@ -194,17 +194,18 @@ def main(args=None):
 
     motor_gui = MotorGui()
 
-    # Replace deprecated create_rate with timer-based approach
+    # ROS Jazzy compatible approach - create_rate is deprecated
+    # Use a timer-based approach for GUI updates
     def gui_update_callback():
         motor_gui.update()
     
-    # 20Hz update rate for GUI
+    # Use 20Hz rate as in original (matches original create_rate(20))
     timer = motor_gui.create_timer(0.05, gui_update_callback)  # 1/20 = 0.05 seconds
     
     try:
         rclpy.spin(motor_gui)
     except KeyboardInterrupt:
-        print("Shutting down...")
+        print("Shutting down motor GUI...")
     finally:
         motor_gui.destroy_node()
         rclpy.shutdown()
