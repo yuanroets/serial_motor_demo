@@ -53,6 +53,7 @@ class MotorGui(Node):
         self.slider_max_label.pack(side=LEFT)
         self.slider_max_val_box = Entry(slider_max_frame, state="disabled")
         self.slider_max_val_box.pack(side=LEFT)
+        self.slider_max_val_box.insert(0, "5.0")  # Set default value
         self.max_val_update_btn = Button(slider_max_frame, text='Update', command=self.update_scale_limits, state="disabled")
         self.max_val_update_btn.pack(side=LEFT)
 
@@ -162,9 +163,21 @@ class MotorGui(Node):
             self.m1.config(from_=-255, to=255, resolution=1)
             self.m2.config(from_=-255, to=255, resolution=1)
         else:
-            lim = float(self.slider_max_val_box.get())
-            self.m1.config(from_=-lim, to=lim, resolution=0.1)
-            self.m2.config(from_=-lim, to=lim, resolution=0.1)
+            try:
+                lim_str = self.slider_max_val_box.get().strip()
+                if lim_str == "":
+                    lim = 5.0  # Default value if empty
+                else:
+                    lim = float(lim_str)
+                self.m1.config(from_=-lim, to=lim, resolution=0.1)
+                self.m2.config(from_=-lim, to=lim, resolution=0.1)
+            except ValueError:
+                # If conversion fails, set back to default and show error
+                self.slider_max_val_box.delete(0, END)
+                self.slider_max_val_box.insert(0, "5.0")
+                print("Invalid input for max rev/sec. Using default value 5.0")
+                self.m1.config(from_=-5.0, to=5.0, resolution=0.1)
+                self.m2.config(from_=-5.0, to=5.0, resolution=0.1)
 
 
 
