@@ -18,12 +18,12 @@ class MotorDriver(Node):
 
         # Setup parameters
 
-        self.declare_parameter('encoder_cpr', value=0)
+        self.declare_parameter('encoder_cpr', value=1860)  # Updated to your CPR
         if (self.get_parameter('encoder_cpr').value == 0):
             print("WARNING! ENCODER CPR SET TO 0!!")
 
 
-        self.declare_parameter('loop_rate', value=0)
+        self.declare_parameter('loop_rate', value=30.0)  # Set default to 30Hz
         if (self.get_parameter('loop_rate').value == 0):
             print("WARNING! LOOP RATE SET TO 0!!")
 
@@ -73,8 +73,9 @@ class MotorDriver(Node):
         self.conn = serial.Serial(self.serial_port, self.baud_rate, timeout=1.0)
         print(f"Connected to {self.conn}")
         
-
-        
+        # Create timer for encoder checking
+        timer_period = 1.0 / self.get_parameter('loop_rate').value
+        self.encoder_timer = self.create_timer(timer_period, self.check_encoders)
 
 
     # Raw serial commands
@@ -173,14 +174,13 @@ def main(args=None):
 
     motor_driver = MotorDriver()
 
-    rate = motor_driver.create_rate(2)
-    while rclpy.ok():
-        rclpy.spin_once(motor_driver)
-        motor_driver.check_encoders()
-
-
-    motor_driver.close_conn()
-    motor_driver.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(motor_driver)
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        motor_driver.close_conn()
+        motor_driver.destroy_node()
+        rclpy.shutdown()
 
 
