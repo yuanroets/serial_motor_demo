@@ -181,13 +181,19 @@ def main(args=None):
 
     motor_gui = MotorGui()
 
-    rate = motor_gui.create_rate(20)    
-    while rclpy.ok():
-        rclpy.spin_once(motor_gui)
+    # Replace deprecated create_rate with timer-based approach
+    def gui_update_callback():
         motor_gui.update()
-
-
-    motor_gui.destroy_node()
-    rclpy.shutdown()
+    
+    # 20Hz update rate for GUI
+    timer = motor_gui.create_timer(0.05, gui_update_callback)  # 1/20 = 0.05 seconds
+    
+    try:
+        rclpy.spin(motor_gui)
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        motor_gui.destroy_node()
+        rclpy.shutdown()
 
 

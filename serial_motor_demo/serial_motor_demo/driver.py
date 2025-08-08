@@ -73,9 +73,7 @@ class MotorDriver(Node):
         self.conn = serial.Serial(self.serial_port, self.baud_rate, timeout=1.0)
         print(f"Connected to {self.conn}")
         
-        # Create timer for encoder checking
-        timer_period = 1.0 / self.get_parameter('loop_rate').value
-        self.encoder_timer = self.create_timer(timer_period, self.check_encoders)
+        # NOTE: No timer needed - we'll call check_encoders in main loop like original
 
 
     # Raw serial commands
@@ -174,6 +172,18 @@ def main(args=None):
 
     motor_driver = MotorDriver()
 
+    # Create a timer to replace the deprecated create_rate
+    loop_rate = motor_driver.get_parameter('loop_rate').value
+    if loop_rate <= 0:
+        loop_rate = 2.0  # Default fallback
+    
+    timer_period = 1.0 / loop_rate
+    
+    def timer_callback():
+        motor_driver.check_encoders()
+    
+    timer = motor_driver.create_timer(timer_period, timer_callback)
+    
     try:
         rclpy.spin(motor_driver)
     except KeyboardInterrupt:
