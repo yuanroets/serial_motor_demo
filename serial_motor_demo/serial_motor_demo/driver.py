@@ -80,10 +80,14 @@ class MotorDriver(Node):
     # Raw serial commands
     
     def send_pwm_motor_command(self, mot_1_pwm, mot_2_pwm):
-        self.send_command(f"o {int(mot_1_pwm)} {int(mot_2_pwm)}")
+        cmd = f"o {int(mot_1_pwm)} {int(mot_2_pwm)}"
+        print(f"DRIVER: Sending PWM command: {cmd}")
+        self.send_command(cmd)
 
     def send_feedback_motor_command(self, mot_1_ct_per_loop, mot_2_ct_per_loop):
-        self.send_command(f"m {int(mot_1_ct_per_loop)} {int(mot_2_ct_per_loop)}")
+        cmd = f"m {int(mot_1_ct_per_loop)} {int(mot_2_ct_per_loop)}"
+        print(f"DRIVER: Sending feedback command: {cmd}")
+        self.send_command(cmd)
 
     def send_encoder_read_command(self):
         resp = self.send_command(f"e")
@@ -95,13 +99,17 @@ class MotorDriver(Node):
     # More user-friendly functions
 
     def motor_command_callback(self, motor_command):
+        print(f"DRIVER: Received motor command - PWM Mode: {motor_command.is_pwm}, Motor 1: {motor_command.mot_1_req_rad_sec}, Motor 2: {motor_command.mot_2_req_rad_sec}")
+        
         if (motor_command.is_pwm):
+            print(f"DRIVER: Sending PWM command to motors")
             self.send_pwm_motor_command(motor_command.mot_1_req_rad_sec, motor_command.mot_2_req_rad_sec)
         else:
             # counts per loop = req rads/sec X revs/rad X counts/rev X secs/loop 
             scaler = (1 / (2*math.pi)) * self.get_parameter('encoder_cpr').value * (1 / self.get_parameter('loop_rate').value)
             mot1_ct_per_loop = motor_command.mot_1_req_rad_sec * scaler
             mot2_ct_per_loop = motor_command.mot_2_req_rad_sec * scaler
+            print(f"DRIVER: Sending feedback command - Motor 1 counts: {mot1_ct_per_loop}, Motor 2 counts: {mot2_ct_per_loop}")
             self.send_feedback_motor_command(mot1_ct_per_loop, mot2_ct_per_loop)
 
     def check_encoders(self):
@@ -140,6 +148,7 @@ class MotorDriver(Node):
         self.mutex.acquire()
         try:
             cmd_string += "\r"
+            print(f"DRIVER: About to send serial command: {cmd_string.strip()}")
             self.conn.write(cmd_string.encode("utf-8"))
             if (self.debug_serial_cmds):
                 print("Sent: " + cmd_string)
@@ -158,7 +167,11 @@ class MotorDriver(Node):
 
             if (self.debug_serial_cmds):
                 print("Received: " + value)
+            print(f"DRIVER: Serial response: {value}")
             return value
+        except Exception as e:
+            print(f"DRIVER: Serial communication error: {e}")
+            return ''
         finally:
             self.mutex.release()
 

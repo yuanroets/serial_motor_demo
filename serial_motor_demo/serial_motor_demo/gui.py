@@ -117,6 +117,7 @@ class MotorGui(Node):
             msg.mot_1_req_rad_sec = float(self.m1.get()*2*math.pi)
             msg.mot_2_req_rad_sec = float(self.m2.get()*2*math.pi)
 
+        print(f"GUI: Sending motor command - PWM Mode: {msg.is_pwm}, Motor 1: {msg.mot_1_req_rad_sec}, Motor 2: {msg.mot_2_req_rad_sec}")
         self.publisher.publish(msg)
 
     def stop_motors(self):
