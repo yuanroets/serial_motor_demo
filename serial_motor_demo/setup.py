@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             'gui = serial_motor_demo.gui:main',
             'driver = serial_motor_demo.driver:main',
+            'teleop_bridge = serial_motor_demo.teleop_bridge:main',
         ],
     },
 )
