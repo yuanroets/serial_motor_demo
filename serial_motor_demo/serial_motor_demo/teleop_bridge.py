@@ -50,11 +50,9 @@ class TeleopBridge(Node):
         angular_vel = max(min(angular_vel, self.max_angular_speed), -self.max_angular_speed)
         
         # Convert to differential drive wheel velocities
-        # v_left = (2*linear_vel - angular_vel*wheel_separation) / (2*wheel_radius)
-        # v_right = (2*linear_vel + angular_vel*wheel_separation) / (2*wheel_radius)
-        
-        v_left = linear_vel - (angular_vel * self.wheel_separation / 2.0)
-        v_right = linear_vel + (angular_vel * self.wheel_separation / 2.0)
+        # For correct turning direction, negate angular velocity
+        v_left = linear_vel - (-angular_vel * self.wheel_separation / 2.0)
+        v_right = linear_vel + (-angular_vel * self.wheel_separation / 2.0)
         
         # Convert wheel velocities to rad/s
         wheel_left_rad_s = v_left / self.wheel_radius
