@@ -23,6 +23,7 @@ setup(
             'gui = serial_motor_demo.gui:main',
             'driver = serial_motor_demo.driver:main',
             'teleop_bridge = serial_motor_demo.teleop_bridge:main',
+            'simple_odometry = serial_motor_demo.simple_odometry:main',
         ],
     },
 )

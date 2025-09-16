@@ -191,8 +191,8 @@ def main(args=None):
     def check_encoders_callback():
         motor_driver.check_encoders()
     
-    # Use 2Hz rate as in original (matches original create_rate(2))
-    timer = motor_driver.create_timer(0.5, check_encoders_callback)
+    # Use 20Hz rate for better SLAM odometry (was 2Hz = 0.5s, now 20Hz = 0.05s)
+    timer = motor_driver.create_timer(0.05, check_encoders_callback)
     
     try:
         rclpy.spin(motor_driver)
