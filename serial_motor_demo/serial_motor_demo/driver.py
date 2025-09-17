@@ -41,6 +41,13 @@ class MotorDriver(Node):
         if (self.debug_serial_cmds):
             print("Serial debug enabled")
 
+        # Motor calibration parameters to correct for wheel bias
+        self.declare_parameter('motor_1_scaler', value=1.0)  # Left motor correction
+        self.declare_parameter('motor_2_scaler', value=1.0)  # Right motor correction
+        self.motor_1_scaler = self.get_parameter('motor_1_scaler').value
+        self.motor_2_scaler = self.get_parameter('motor_2_scaler').value
+        print(f"Motor scalers - Motor 1 (left): {self.motor_1_scaler}, Motor 2 (right): {self.motor_2_scaler}")
+
 
 
         # Setup topics & services
@@ -106,9 +113,12 @@ class MotorDriver(Node):
             self.send_pwm_motor_command(motor_command.mot_1_req_rad_sec, motor_command.mot_2_req_rad_sec)
         else:
             # counts per loop = req rads/sec X revs/rad X counts/rev X secs/loop 
-            scaler = (1 / (2*math.pi)) * self.get_parameter('encoder_cpr').value * (1 / self.get_parameter('loop_rate').value)
-            mot1_ct_per_loop = motor_command.mot_1_req_rad_sec * scaler
-            mot2_ct_per_loop = motor_command.mot_2_req_rad_sec * scaler
+            base_scaler = (1 / (2*math.pi)) * self.get_parameter('encoder_cpr').value * (1 / self.get_parameter('loop_rate').value)
+            
+            # Apply individual motor scalers to correct for wheel bias
+            mot1_ct_per_loop = motor_command.mot_1_req_rad_sec * base_scaler * self.motor_1_scaler
+            mot2_ct_per_loop = motor_command.mot_2_req_rad_sec * base_scaler * self.motor_2_scaler
+            
             print(f"DRIVER: Sending feedback command - Motor 1 counts: {mot1_ct_per_loop}, Motor 2 counts: {mot2_ct_per_loop}")
             self.send_feedback_motor_command(mot1_ct_per_loop, mot2_ct_per_loop)
 
