@@ -26,8 +26,8 @@ class TeleopBridge(Node):
         )
         
         # Robot parameters (adjust these for your robot)
-        self.declare_parameter('wheel_separation', 0.297)  # Distance between wheels (m)
-        self.declare_parameter('wheel_radius', 0.033)      # Wheel radius (m)
+        self.declare_parameter('wheel_separation', 0.155)  # Distance between wheels (m)
+        self.declare_parameter('wheel_radius', 0.02569)      # Wheel radius (m)
         self.declare_parameter('max_linear_speed', 1.0)    # Max linear speed (m/s)
         self.declare_parameter('max_angular_speed', 2.0)   # Max angular speed (rad/s)
         
