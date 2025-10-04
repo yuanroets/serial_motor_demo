@@ -42,7 +42,7 @@ class MotorDriver(Node):
             print("Serial debug enabled")
 
         # Motor calibration parameters to correct for wheel bias
-        self.declare_parameter('motor_1_scaler', value=0.93)  # Left motor correction (further reduced)
+        self.declare_parameter('motor_1_scaler', value=0.88)  # Left motor correction (aggressive: 9651/10010)
         self.declare_parameter('motor_2_scaler', value=1.0)  # Right motor correction
         self.motor_1_scaler = self.get_parameter('motor_1_scaler').value
         self.motor_2_scaler = self.get_parameter('motor_2_scaler').value
