@@ -25,7 +25,7 @@ class SimpleOdometry(Node):
         
         # Parameters (matching your actual hardware)
         self.declare_parameter('encoder_cpr', 1860)
-        self.declare_parameter('wheel_separation', 0.155)  # 155mm actual wheel separation
+        self.declare_parameter('wheel_separation', 0.160)  # Decreased from 0.173 to reduce negative yaw drift
         self.declare_parameter('wheel_radius', 0.02569)     # 25.69mm radius (50mm diameter)
         
         self.encoder_cpr = self.get_parameter('encoder_cpr').value
