@@ -116,8 +116,12 @@ class MotorDriver(Node):
             base_scaler = (1 / (2*math.pi)) * self.get_parameter('encoder_cpr').value * (1 / self.get_parameter('loop_rate').value)
             
             # Apply individual motor scalers to correct for wheel bias
-            mot1_ct_per_loop = motor_command.mot_1_req_rad_sec * base_scaler * self.motor_1_scaler
-            mot2_ct_per_loop = motor_command.mot_2_req_rad_sec * base_scaler * self.motor_2_scaler
+            # Get current parameter values (allows runtime tuning)
+            current_motor_1_scaler = self.get_parameter('motor_1_scaler').value
+            current_motor_2_scaler = self.get_parameter('motor_2_scaler').value
+            
+            mot1_ct_per_loop = motor_command.mot_1_req_rad_sec * base_scaler * current_motor_1_scaler
+            mot2_ct_per_loop = motor_command.mot_2_req_rad_sec * base_scaler * current_motor_2_scaler
             
             print(f"DRIVER: Sending feedback command - Motor 1 counts: {mot1_ct_per_loop}, Motor 2 counts: {mot2_ct_per_loop}")
             self.send_feedback_motor_command(mot1_ct_per_loop, mot2_ct_per_loop)
