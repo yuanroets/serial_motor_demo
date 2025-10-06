@@ -25,7 +25,7 @@ class SimpleOdometry(Node):
         
         # Parameters (matching your actual hardware)
         self.declare_parameter('encoder_cpr', 1860)
-        self.declare_parameter('wheel_separation', 0.153)  # Optimized through circle testing for best odometry
+        self.declare_parameter('wheel_separation', 0.170)  # Final optimized value through systematic testing
         self.declare_parameter('wheel_radius', 0.02569)     # 25.69mm radius (50mm diameter)
         
         self.encoder_cpr = self.get_parameter('encoder_cpr').value
